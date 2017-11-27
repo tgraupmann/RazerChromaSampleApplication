@@ -19,6 +19,12 @@ private:
     CWnd* m_pParent;
     UINT m_DeviceType;
 
+	UINT m_ChromaLinkHp;
+	UINT m_ChromaLinkAmmo;
+
+	UINT m_HeadsetHp;
+	UINT m_HeadsetAmmo;
+
 protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     virtual BOOL OnInitDialog();

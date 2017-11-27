@@ -16,6 +16,10 @@ CHealthAmmoManaDlg::CHealthAmmoManaDlg(CWnd* pParent /*=NULL*/)
 {
     m_pParent = pParent;
     m_DeviceType = 0;
+	m_ChromaLinkHp = 0;
+	m_ChromaLinkAmmo = 0;
+	m_HeadsetHp = 0;
+	m_HeadsetAmmo = 0;
 }
 
 CHealthAmmoManaDlg::~CHealthAmmoManaDlg()
@@ -207,10 +211,24 @@ void CHealthAmmoManaDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollB
         break;
     case 4: // Headsets
         {
-            ChromaSDK::Headset::STATIC_EFFECT_TYPE Effect = {};
-            Effect.Color = RGB((255 - ((Hp/100.0) * 255.0)), ((Hp/100.0) * 255.0), 0);
+			if (m_HeadsetHp != Hp)
+			{
+				ChromaSDK::Headset::STATIC_EFFECT_TYPE Effect = {};
+				Effect.Color = RGB((255 - ((Hp / 100.0) * 255.0)), ((Hp / 100.0) * 255.0), 0);
 
-            g_ChromaSDKImpl.CreateHeadsetEffectImpl(ChromaSDK::Headset::CHROMA_STATIC, &Effect, NULL);
+				g_ChromaSDKImpl.CreateHeadsetEffectImpl(ChromaSDK::Headset::CHROMA_STATIC, &Effect, NULL);
+
+				m_HeadsetHp = Hp;
+			}
+			if (m_HeadsetAmmo != Ammo)
+			{
+				ChromaSDK::Headset::STATIC_EFFECT_TYPE Effect = {};
+				Effect.Color = RGB((((Ammo / 100.0) * 255.0)), ((Ammo / 100.0) * 127.0), 0);
+
+				g_ChromaSDKImpl.CreateHeadsetEffectImpl(ChromaSDK::Headset::CHROMA_STATIC, &Effect, NULL);
+
+				m_HeadsetAmmo = Ammo;
+			}
         }
     case 5: // Keypads
         {
@@ -239,19 +257,40 @@ void CHealthAmmoManaDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollB
         break;
     case 6: // Chroma Linked devices
         {
-            ChromaSDK::ChromaLink::CUSTOM_EFFECT_TYPE Effect = {};
+			if (m_ChromaLinkHp != Hp)
+			{
+				ChromaSDK::ChromaLink::CUSTOM_EFFECT_TYPE Effect = {};
 
-            FLOAT RemainingHealth = FLOAT((FLOAT)Hp/100.0 * 5.0); // 5 LEDs.
+				FLOAT RemainingHealth = FLOAT((FLOAT)Hp / 100.0 * 5.0); // 5 LEDs.
 
-            COLORREF HpColor = RGB((((5-RemainingHealth)/5.0)*255), ((RemainingHealth/5.0)*255), 0);
+				COLORREF HpColor = RGB((((5 - RemainingHealth) / 5.0) * 255), ((RemainingHealth / 5.0) * 255), 0);
 
-            // Display Hp on keypads.
-            for(UINT i=0; i<RemainingHealth; i++)
-            {
-                Effect.Color[i] = HpColor;
-            }
+				// Display Hp on ChromaLink.
+				for (UINT i = 0; i < RemainingHealth; i++)
+				{
+					Effect.Color[i] = HpColor;
+				}
 
-            g_ChromaSDKImpl.CreateChromaLinkEffectImpl(ChromaSDK::ChromaLink::CHROMA_CUSTOM, &Effect, NULL);
+				g_ChromaSDKImpl.CreateChromaLinkEffectImpl(ChromaSDK::ChromaLink::CHROMA_CUSTOM, &Effect, NULL);
+
+				m_ChromaLinkHp = Hp;
+			}
+			if (m_ChromaLinkAmmo != Ammo)
+			{
+				ChromaSDK::ChromaLink::CUSTOM_EFFECT_TYPE Effect = {};
+
+				FLOAT RemainingAmmo = FLOAT((FLOAT)Ammo / 100.0 * 5.0); // 5 LEDs.
+
+				// Display Ammo on ChromaLink.
+				for (UINT i = 0; i < RemainingAmmo; i++)
+				{
+					Effect.Color[i] = YELLOW;
+				}
+
+				g_ChromaSDKImpl.CreateChromaLinkEffectImpl(ChromaSDK::ChromaLink::CHROMA_CUSTOM, &Effect, NULL);
+
+				m_ChromaLinkAmmo = Ammo;
+			}
         }
         break;
     }
